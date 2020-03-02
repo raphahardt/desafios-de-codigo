@@ -30,7 +30,7 @@ class TestOPrimeiroDoRanking(unittest.TestCase):
         resposta_esperada = list(map(int, es_o_primeiro_do_ranking.SAIDA_TESTE_1.rstrip().split()))
         self.assertEqual(resposta_esperada, resposta)
 
-    def test_deve_retornar_posicoes_rapidamnete_quando_classificacao_e_colossal(self):
+    def test_deve_retornar_posicoes_rapidamente_quando_classificacao_e_colossal(self):
         qtd_pontuacoes = es_o_primeiro_do_ranking.ENTRADA_TESTE_3['qtd_pontuacoes']
         pontuacoes = list(map(int,es_o_primeiro_do_ranking.ENTRADA_TESTE_3['pontuacoes'].rstrip().split()))
         qtd_pontuacoes_do_joaozinho = es_o_primeiro_do_ranking.ENTRADA_TESTE_3['qtd_pontuacoes_joaozinho']
