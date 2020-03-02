@@ -161,5 +161,4 @@ Exemplo de saída 2
 
 
 def o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho):
-    from respostas import joaozinho
-    return joaozinho.zas(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
+    pass
