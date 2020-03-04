@@ -5,21 +5,26 @@ import unittest
 from src.o_primeiro_do_ranking import o_primeiro_do_ranking
 
 from tests.entradas_e_saidas import es_o_primeiro_do_ranking, testes_de_erro
-
+from src.ranking import validacao
 
 class TestOPrimeiroDoRanking(unittest.TestCase):
 
     def test_deve_lancar_erro_em_caso_de_valores_invalidos(self):
         for i in range(len(testes_de_erro.DADOS)):
             teste = testes_de_erro.DADOS[i]['teste']
+            error_message = testes_de_erro.DADOS[i]['error_message']
+
             with self.subTest(msg=teste, i=i):
                 qtd_pontuacoes = testes_de_erro.DADOS[i]['qtd_pontuacoes']
                 pontuacoes = testes_de_erro.DADOS[i]['pontuacoes']
                 qtd_pontuacoes_do_joaozinho = testes_de_erro.DADOS[i]['qtd_pontuacoes_do_joaozinho']
                 pontuacoes_do_joaozinho = testes_de_erro.DADOS[i]['pontuacoes_do_joaozinho']
 
-                with self.assertRaises(ValueError):
-                    o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
+                with self.assertRaises(validacao.ValidacaoError) as context:
+                    o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes,
+                                          qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
+
+                self.assertEqual(error_message, context.exception.message)
 
     def test_deve_retornar_posicoes_quando_classificacao_e_pequena(self):
         qtd_pontuacoes = 7
