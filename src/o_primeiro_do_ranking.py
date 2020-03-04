@@ -159,6 +159,8 @@ Exemplo de saída 2
 
 """
 
+from src.ranking import validacao, ranking
+
 
 def o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho):
-    pass
+    validacao.validar_parametros(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
