@@ -159,8 +159,36 @@ Exemplo de saída 2
 
 """
 
-from src.ranking import validacao, ranking
+from src.ranking import validacao
 
 
 def o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho):
     validacao.validar_parametros(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
+
+    resultados = []
+
+    # TODO: otimizar
+    for j in range(qtd_pontuacoes_do_joaozinho):
+        # pega a pontuacao do joaozinho atual pra saber qual vai ser o ranking dele
+        pontos_joaozinho = pontuacoes_do_joaozinho[j]
+
+        # procura em cada pontuação se o joaozinho tem pontuacao maior
+        # do que cada um da rodada
+        found, rank = False, 1
+        for i in range(qtd_pontuacoes):
+            if pontos_joaozinho >= pontuacoes[i]:
+                resultados.append(rank)
+                found = True
+                # se o joaozinho tiver maior pontuação, nem
+                # preciso olhar o resto da lista
+                break
+
+            if i == 0 or pontuacoes[i] != pontuacoes[i - 1]:
+                rank += 1
+
+        # se o joaozinho não tiver pontuação maior do que ninguém,
+        # adicionar ele como último colocado com o último rank disponível
+        if not found:
+            resultados.append(rank)
+
+    return resultados
