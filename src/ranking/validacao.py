@@ -8,11 +8,11 @@ def validar_parametros(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, 
 
     # como as pontuacoes vem sempre em ordem decrescente, só preciso ver se o primeiro
     # elemento é maior do que a pontuação máxima
-    if pontuacoes[0] > 10000000000 or pontuacoes[-1] < 0:
+    if not 0 <= pontuacoes[0] <= 10000000000 or not 0 <= pontuacoes[-1] <= 10000000000:
         raise ValidacaoError('pontuacoes inválido. Os valores da lista devem ser entre 0 e 1000000000')
 
     # no caso dos pontos do joaozinho, é o contrario, pois os pontos vem sempre em ordem crescente
-    if pontuacoes_do_joaozinho[-1] > 10000000000 or pontuacoes_do_joaozinho[0] < 0:
+    if not 0 <= pontuacoes_do_joaozinho[-1] <= 10000000000 or not 0 <= pontuacoes_do_joaozinho[0] <= 10000000000:
         raise ValidacaoError('pontuacoes_do_joaozinho inválido. Os valores da lista devem ser entre 0 e 1000000000')
 
     if qtd_pontuacoes != len(pontuacoes):

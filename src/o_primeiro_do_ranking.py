@@ -159,110 +159,18 @@ Exemplo de saída 2
 
 """
 
-from src.ranking import validacao
+from src.ranking import validacao, ranking
 
 
 def o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho):
     validacao.validar_parametros(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinho, pontuacoes_do_joaozinho)
 
+    # class que vai lidar com o placar de pontuações e retornar o
+    # rank de cada pontuação
+    r = ranking.Ranking(pontuacoes, qtd_pontuacoes)
+
     resultados = []
-
-    # TODO: a lógica funciona, mas o código está muito bagunçado, acertar a lógica em uma classe especializada em iterar sobre as pontuacoes
-    rank, rank_index = None, None
     for j in range(qtd_pontuacoes_do_joaozinho):
-        # pega a pontuacao do joaozinho atual pra saber qual vai ser o ranking dele
-        pontos_joaozinho = pontuacoes_do_joaozinho[j]
-
-        # se não foi encontrado o ranking da primeira rodada,
-        # percorre a lista inteira de rodadas até encontrar o primeiro ranking
-        # do joaozinho
-        if not rank:
-            rank = 1
-            # procura em cada pontuação se o joaozinho tem pontuacao maior
-            # do que cada um da rodada
-            found = False
-            for i in range(qtd_pontuacoes):
-                if pontos_joaozinho >= pontuacoes[i]:
-                    resultados.append(rank)
-                    rank_index = i
-                    # eu atualizo a lista de pontuacoes pra definir que o joaozinho
-                    # agora ocupa aquele "slot" do ranking
-                    # PS: teoricamente eu não preciso "shiftar" os outros elementos pelo
-                    # motivo do break abaixo
-                    pontuacoes[i] = pontos_joaozinho
-                    found = True
-                    # se o joaozinho tiver maior pontuação, nem
-                    # preciso olhar o resto da lista
-                    break
-
-                # se a pontuação atual for igual à anterior, o ranking não muda
-                # então se ele for o primeiro da lista (i == 0) ou tem diferença, então subo um rank
-                if i == 0 or pontuacoes[i] != pontuacoes[i - 1]:
-                    rank += 1
-
-            # se o joaozinho não tiver pontuação maior do que ninguém,
-            # adicionar ele como último colocado com o último rank disponível
-            if not found:
-                rank_index = qtd_pontuacoes
-                pontuacoes.append(pontos_joaozinho)
-                resultados.append(rank)
-
-        # se eu já tenho um ranking, eu ao invés de recontar os rankings
-        # desde o inicio da lista de pontuações novamente, eu parto do rank atual
-        # e percorro inversamente a lista de pontuacoes procurando a pontuacao
-        # que é menor ou igual à pontuação atual do joaozinho
-        # PS: isso só é possível pq é garantido que a lista de pontuacao é ordem crescente
-        # e a lista do joaozinho é em ordem decrescente
-        # TODO: dá pra melhorar o entendimento usando generator
-        else:
-            found = False
-            i = rank_index
-            # começo definindo a pontuação do index que eu tinha parado
-            prox_pontuacao = pontuacoes[i]
-
-            while i > 0:
-                # começo sempre do index anterior de onde eu tinha parado, pra comparar com o atual
-                i -= 1
-
-                # se comparando com a pontuação atual for diferente, então volto um rank
-                if pontuacoes[i] != prox_pontuacao:
-                    rank -= 1
-                prox_pontuacao = pontuacoes[i]
-
-                # se a pontuação for igual ou menor ao do joaozinho na rodada atual,
-                # então atingi um rank ou sou o próximo rank do atual
-                # por exemplo: se a pontuação do joaozinho for 40 e a pontuação atual for 30 com rank 3,
-                # então joaozinho vai ser rank 4 nessa rodada
-                # agora se joaozinho for 50 e pontuação atual for 50 com rank 2,
-                # então joaozinho vai ser rank 2 nessa rodada
-                if pontos_joaozinho == pontuacoes[i]:
-                    resultados.append(rank)
-                    rank_index = i
-                    found = True
-                    # paro de percorrer o i
-                    # a próxima rodada vai continuar de onde foi parado
-                    # aqui eu não preciso atualizar o ranking, pois a pontuação é igual
-                    break
-                elif pontos_joaozinho < pontuacoes[i]:
-                    rank += 1
-                    resultados.append(rank)
-                    # nesse caso aqui, eu vou precisar olhar novamente esse index,
-                    # pois a pontuação anterior era provavelmente menor que a pontuação do joaozinho
-                    # e eu tenho que usar ela pra comparar no prox_pontuacao
-                    rank_index = i + 1
-                    # coloco o joaozinho no ranking
-                    pontuacoes[rank_index] = pontos_joaozinho
-                    found = True
-                    # paro de percorrer o i
-                    # a próxima rodada vai continuar de onde foi parado
-                    break
-
-            # se a pontuação do joaozinho não for menor do que ninguem no ranking,
-            # então significa que ele é o primeiro colocado sempre.
-            # a partir daqui, eu não preciso mais atualizar o ranking, e definindo o rank_index
-            # como 0 me garante que o while acima sempre vai ser ignorado
-            if not found:
-                rank_index = 0
-                resultados.append(rank)
+        resultados.append(r.get_rank_joaozinho(pontuacoes_do_joaozinho[j]))
 
     return resultados
