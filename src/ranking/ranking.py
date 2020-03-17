@@ -1,74 +1,111 @@
 
-class Ranking:
-    __pontuacoes = []
-    __qtd_pontuacoes = 0
-
-    # iniciais
-    __rank = 1
-    __last_index = 0
-    __iteracao_direcao = 1
-
+class Ranking(object):
     def __init__(self, pontuacoes, qtd_pontuacoes):
         self.__pontuacoes = pontuacoes
         self.__qtd_pontuacoes = qtd_pontuacoes
+        self.__rank = None
+        self.__last_index = 0
+        self.__found_first_rank = False
 
         # adiciono uma pontuação "bogus" de "último lugar" nas pontuações
         # para assim, a lógica de comparação eu não precise fazer nenhum desvio técnico
-        # como eu estava fazendo antes na primeira versão
         self.__pontuacoes.append(0)
         self.__qtd_pontuacoes += 1
 
-    def get_rank_joaozinho(self, pontos_joaozinho):
+    def get_rank_from_pontuacao(self, pontuacao):
         """
-        Retorna o rank do joaozinho, dado os pontos dele em uma rodada.
+        Retorna o rank dado uma pontuação de uma rodada.
         """
-        for [rank, i] in self.__iterar_em_pontuacoes():
-            if self.__is_rank_joaozinho(pontos_joaozinho, i):
-                # se o rank do joaozinho for encontrado
+        if not self.__found_first_rank:
+            iterator = self.__iterate_to_find_first_rank
+        else:
+            iterator = self.__iterate_to_find_subsequent_ranks
+
+        for rank, i in iterator():
+            if self.__is_rank_pontuacao(pontuacao, i):
+                # se o rank dessa rodada for encontrado
                 # coloco ele no ranking
                 # PS: eu não faço "shift" dos outros colocados no ranking
                 # porque o teste não pediu, então não é necessário
-                self.__pontuacoes[i] = pontos_joaozinho
+                self.__pontuacoes[i] = pontuacao
 
-                # pra performance, após a iteração sobre o ranking correr de forma crescente,
-                # eu inverto a ordem pra correr a partir do último indice antes do return
-                if self.__iteracao_direcao == 1:
-                    self.__iteracao_direcao = -1
+                # marco que encontrei o primeiro rank se eu ainda não tiver encontrado
+                if not self.__found_first_rank:
+                    self.__found_first_rank = True
 
                 # e interrompo a iteracao
                 return rank
 
-    def __is_rank_joaozinho(self, pontos_joaozinho, i):
+    def __is_rank_pontuacao(self, pontuacao, i):
         """
-        Retorna True se uma pontuação do joaozinho fazer parte do ranking, dado um index i
+        Retorna True se uma pontuação fazer parte do ranking, dado um index i
         da posição do ranking
+        Uso interno da classe, e funciona junto dos métodos '__iterate_to_find_first_rank'
+        e '__iterate_to_find_subsequent_ranks'
         """
-        if self.__iteracao_direcao == 1:
-            retorno = i == self.__qtd_pontuacoes or pontos_joaozinho >= self.__pontuacoes[i]
+        # se está procurando o primeiro rank
+        if not self.__found_first_rank:
+            # se está no último indice do ranking, então com certeza é o rank
+            # (lembrando que o ranking tem uma pontuação "bogus" de zero pra justamente
+            # ter um último lugar pra comparar)
+            if i == self.__qtd_pontuacoes:
+                return True
+
+            # caso contrario, a pontuação da rodada só é do ranking se ela for igual ou maior que a
+            # pontuação do ranking iterada
+            return pontuacao >= self.__pontuacoes[i]
+
+        # se está procurando os ranks subsequentes
         else:
-            retorno = i == 0 or (self.__pontuacoes[i] <= pontos_joaozinho < self.__pontuacoes[i - 1])
+            # se chegou no "fim" do ranking (que no caso seria o começo), significa que
+            # é primeiro lugar no ranking, então sempre retornar true
+            if i == 0:
+                return True
 
-        return retorno
+            # caso contrario, a pontuação da rodada só é do ranking se ela for igual ou maior que a
+            # pontuação do ranking iterada e menor que a pontuação do rank anterior
+            return self.__pontuacoes[i] <= pontuacao < self.__pontuacoes[i - 1]
 
-    def __iterar_em_pontuacoes(self):
+    def __iterate_to_find_first_rank(self):
+        """
+        Generator que percorre cada pontuação no ranking e envia pro
+        iterador:
+        - o rank daqueles pontos
+        - o indice daqueles pontos na lista de pontuação
+
+        O generator vai correr em ordem crescente. Ele é usado apenas pra encontrar
+        o primeiro rank possível de uma pontuação. Ao encontrar, ele lembra onde parou
+        para que o segundo generator continue correndo, mas de forma decrescente
+        """
+        self.__rank = 0
+        prox_pontuacao = None
+
+        for i in range(self.__qtd_pontuacoes):
+            if self.__pontuacoes[i] != prox_pontuacao:
+                self.__rank += 1
+                prox_pontuacao = self.__pontuacoes[i]
+
+            self.__last_index = i
+            yield self.__rank, i
+
+    def __iterate_to_find_subsequent_ranks(self):
         """
         Generator que percorre cada pontuação no ranking e envia pro iterador:
         - o rank daqueles pontos
         - o indice daqueles pontos na lista de pontuação
 
-        O generator vai correr na ordem crescente ou decrescente conforme a
-        propriedade iteracao_direcao. O generator vai continuar sempre de onde
-        parou
+        O generator vai correr na ordem inversa, a partir do ponto onde o primeiro generator
+        parou. As próximas chamadas dele ele sempre vai continuar de onde parou também.
         """
         i = self.__last_index
         prox_pontuacao = self.__pontuacoes[i]
-        yield [self.__rank, i]
+        yield self.__rank, i
 
-        while 0 <= i <= self.__qtd_pontuacoes - 1:
-            i += 1 * self.__iteracao_direcao
+        while 0 <= i:
+            i -= 1
             if self.__pontuacoes[i] != prox_pontuacao:
-                self.__rank += 1 * self.__iteracao_direcao
+                self.__rank -= 1
                 prox_pontuacao = self.__pontuacoes[i]
 
             self.__last_index = i
-            yield [self.__rank, i]
+            yield self.__rank, i

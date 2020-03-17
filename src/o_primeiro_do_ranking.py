@@ -171,6 +171,6 @@ def o_primeiro_do_ranking(qtd_pontuacoes, pontuacoes, qtd_pontuacoes_do_joaozinh
 
     resultados = []
     for j in range(qtd_pontuacoes_do_joaozinho):
-        resultados.append(r.get_rank_joaozinho(pontuacoes_do_joaozinho[j]))
+        resultados.append(r.get_rank_from_pontuacao(pontuacoes_do_joaozinho[j]))
 
     return resultados
